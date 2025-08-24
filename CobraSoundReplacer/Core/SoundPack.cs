@@ -7,6 +7,9 @@ public class SoundPack
     [JsonProperty("pack_name")]
     public string PackName { get; set; }
     
+    [JsonProperty("enable")]
+    public bool Enable { get; set; }
+    
     [JsonProperty("sound_replacements")]
     public SoundReplacement[] SoundReplacements { get; set; }
 

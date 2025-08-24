@@ -46,9 +46,10 @@ public static class SoundPackRegistry
         Plugin.Logger.LogInfo($"Found {allFiles.Length} sound packs to load. Loading...");
 
         int successes = 0;
+        int disabledPacks = 0;
         foreach (var path in allFiles)
         {
-            SoundPack pack = null;
+            SoundPack pack;
             try
             {
                 var text = File.ReadAllText(path);
@@ -61,10 +62,17 @@ public static class SoundPackRegistry
                 continue;
             }
 
-            yield return RegisterSoundPack(pack, Path.GetDirectoryName(path));
+            if (pack.Enable)
+                yield return RegisterSoundPack(pack, Path.GetDirectoryName(path));
+            else
+                disabledPacks++;
         }
 
         Plugin.Logger.LogInfo($"Loaded {successes} sound pack(s).");
+        if (disabledPacks > 0)
+        {
+            Plugin.Logger.LogInfo($"Skipped registering {disabledPacks} pack(s) because they were not enabled.");
+        }
     }
 
     internal static IEnumerator OnAudioInitialized(CAudio cAudio)
