@@ -5,28 +5,28 @@ namespace CobraSoundReplacer.Core;
 
 public class SoundDatabase(CAudio cAudio)
 {
-    private Dictionary<string, int> _indexFromFileName;
-    private Dictionary<int, string> _fileNameFromIndex;
+    private Dictionary<string, ushort> _indexFromFileName;
+    private Dictionary<ushort, string> _fileNameFromIndex;
 
     public void InitializeDatabase()
     {
         var allClips = cAudio.AllClip;
 
-        _indexFromFileName = new Dictionary<string, int>();
-        _fileNameFromIndex = new Dictionary<int, string>();
-        for (int i = 0; i < allClips.Length; i++)
+        _indexFromFileName = new Dictionary<string, ushort>();
+        _fileNameFromIndex = new Dictionary<ushort, string>();
+        for (ushort i = 0; i < allClips.Length; i++)
         {
             _indexFromFileName.Add(allClips[i].loadname, i);
             _fileNameFromIndex.Add(i, allClips[i].loadname);
         }
     }
 
-    public bool TryGetFileNameFromIndex(int index, out string fileName)
+    public bool TryGetFileNameFromIndex(ushort index, out string fileName)
     {
         return _fileNameFromIndex.TryGetValue(index, out fileName);
     }
 
-    public bool TryGetIndexFromFileName(string fileName, out int index)
+    public bool TryGetIndexFromFileName(string fileName, out ushort index)
     {
         return _indexFromFileName.TryGetValue(fileName, out index);
     }

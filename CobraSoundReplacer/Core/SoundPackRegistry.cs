@@ -17,7 +17,7 @@ public static class SoundPackRegistry
 
     private static CAudio _cAudio;
 
-    internal static readonly Dictionary<int, AudioClip> SoundReplacements = new();
+    internal static readonly Dictionary<ushort, AudioClip> SoundReplacements = new();
 
     public static IEnumerator RegisterSoundPack(SoundPack pack, string containingFolderPath)
     {

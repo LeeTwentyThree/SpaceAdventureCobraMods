@@ -3,6 +3,7 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using CobraSoundReplacer.Core;
+using CobraSoundReplacer.Patches;
 using HarmonyLib;
 
 namespace CobraSoundReplacer;
@@ -22,8 +23,9 @@ public class Plugin : BaseUnityPlugin
         
         Logger = base.Logger;
         
-        Harmony.CreateAndPatchAll(Assembly, $"{MyPluginInfo.PLUGIN_GUID}");
-
+        var harmony = Harmony.CreateAndPatchAll(Assembly, $"{MyPluginInfo.PLUGIN_GUID}");
+        RegisterManualPatches(harmony);
+        
         StartCoroutine(SoundPackRegistry.LoadPacksAutomatically());
         
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
@@ -32,5 +34,10 @@ public class Plugin : BaseUnityPlugin
     public static void StartCoroutineOnPlugin(IEnumerator coroutine)
     {
         _instance.StartCoroutine(coroutine);
+    }
+
+    private static void RegisterManualPatches(Harmony harmony)
+    {
+        
     }
 }
