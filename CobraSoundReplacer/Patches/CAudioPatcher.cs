@@ -22,6 +22,14 @@ public static class CAudioPatcher
 [HarmonyPatch(typeof(CAudio), nameof(CAudio.play), typeof(ushort), typeof(float), typeof(float), typeof(CAudio.eVolumeType), typeof(bool), typeof(audioSelectionData.eCLIP))]
 public static class PlayAudioByIdPatch
 {
+    static void Prefix(ushort idx, ref float vol)
+    {
+        if (SoundPackRegistry.CustomSoundVolumes.TryGetValue(idx, out var customVolume))
+        {
+            vol *= customVolume;
+        }
+    }
+    
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
         var codeMatcher = new CodeMatcher(instructions, generator);
@@ -107,10 +115,5 @@ public static class PlayAudioByIdPatch
             Plugin.Logger.LogError("Failed to find sound replacement by ID " + soundId);
         }
         return sound;
-    }
-    
-    private static float GetVolumeMultiplier(ushort soundId)
-    {
-        return !SoundPackRegistry.CustomSoundVolumes.TryGetValue(soundId, out var volume) ? 1f : volume;
     }
 }
