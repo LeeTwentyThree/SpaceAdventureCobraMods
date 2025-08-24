@@ -108,4 +108,9 @@ public static class PlayAudioByIdPatch
         }
         return sound;
     }
+    
+    private static float GetVolumeMultiplier(ushort soundId)
+    {
+        return !SoundPackRegistry.CustomSoundVolumes.TryGetValue(soundId, out var volume) ? 1f : volume;
+    }
 }

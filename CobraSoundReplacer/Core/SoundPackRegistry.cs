@@ -18,6 +18,7 @@ public static class SoundPackRegistry
     private static CAudio _cAudio;
 
     internal static readonly Dictionary<ushort, AudioClip> SoundReplacements = new();
+    internal static readonly Dictionary<ushort, float> CustomSoundVolumes = new();
 
     public static IEnumerator RegisterSoundPack(SoundPack pack, string containingFolderPath)
     {
@@ -96,13 +97,13 @@ public static class SoundPackRegistry
         foreach (var replacement in pack.Pack.SoundReplacements)
         {
             yield return SetSoundReplacement(replacement.OriginalFileName,
-                Path.Combine(pack.ContainingFolderPath, replacement.ReplacementFilePath));
+                Path.Combine(pack.ContainingFolderPath, replacement.ReplacementFilePath), replacement.Volume);
         }
 
         pack.InitializedEver = true;
     }
 
-    private static IEnumerator SetSoundReplacement(string originalFileName, string replacementFilePath)
+    private static IEnumerator SetSoundReplacement(string originalFileName, string replacementFilePath, float volume)
     {
         if (!_soundDatabase.TryGetIndexFromFileName(originalFileName, out var index))
         {
@@ -127,6 +128,7 @@ public static class SoundPackRegistry
         }
         
         SoundReplacements[index] = clip;
+        CustomSoundVolumes[index] = volume;
     }
 
     private class RegisteredSoundPack
