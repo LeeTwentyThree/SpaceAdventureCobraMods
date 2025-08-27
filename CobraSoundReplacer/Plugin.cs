@@ -3,7 +3,6 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using CobraSoundReplacer.Core;
-using CobraSoundReplacer.Patches;
 using HarmonyLib;
 
 namespace CobraSoundReplacer;
@@ -16,7 +15,7 @@ public class Plugin : BaseUnityPlugin
     private static Assembly Assembly { get; } = Assembly.GetExecutingAssembly();
 
     private static Plugin _instance;
-        
+    
     private void Awake()
     {
         _instance = this;

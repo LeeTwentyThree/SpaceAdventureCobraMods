@@ -94,11 +94,6 @@ public static class PlayAudioByIdPatch
             // RETURN TO NORMAL OPERATION
             .InsertAndAdvance(new CodeInstruction(OpCodes.Br, setVolumeLabel))
             .ThrowIfInvalid("Failed to insert jump to after the original clip loading logic.");
-
-        foreach (var instr in codeMatcher.Instructions())
-        {
-            Debug.Log($"{instr.opcode} {instr.operand}");
-        }
         
         return codeMatcher.Instructions();
     }
