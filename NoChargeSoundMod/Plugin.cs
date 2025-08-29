@@ -11,18 +11,32 @@ public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
 
-    public static ConfigEntry<float> SoundVolumeMultiplier;
+    public static ConfigEntry<float> ChargingSoundVolumeMultiplier;
+    public static ConfigEntry<float> ChargedSoundVolumeMultiplier;
+    public static ConfigEntry<float> JustChargedSoundVolumeMultiplier;
     
     private void Awake()
     {
         Logger = base.Logger;
 
-        SoundVolumeMultiplier = Config.Bind("General",
-            "SoundVolumeMultiplier",
+        ChargingSoundVolumeMultiplier = Config.Bind("General",
+            "ChargingSoundVolumeMultiplier",
             0f,
-            "The volume multiplier for the charge sound."
+            "The volume multiplier for the charging sound."
+        );
+        
+        ChargedSoundVolumeMultiplier = Config.Bind("General",
+            "ChargedSoundVolumeMultiplier",
+            0f,
+            "The volume multiplier for the charged sound."
         );
 
+        JustChargedSoundVolumeMultiplier = Config.Bind("General",
+            "JustChargedSoundVolumeMultiplier",
+            0f,
+            "The volume multiplier for the 'just charged' sound."
+        );
+        
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
