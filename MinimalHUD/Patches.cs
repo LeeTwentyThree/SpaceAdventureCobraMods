@@ -7,6 +7,13 @@ namespace MinimalHUD;
 public static class Patches
 {
     [HarmonyPrefix]
+    [HarmonyPatch(typeof(UIController), nameof(UIController.Awake))]
+    public static void ModifyUIElements(UIController __instance)
+    {
+        __instance.uiDirectionPrefab.AddComponent<CanvasGroup>().ignoreParentGroups = true;
+    }
+    
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(UIController), nameof(UIController.AddGuidedShotTarget))]
     public static bool RemoveGuidedShotTarget()
     {
