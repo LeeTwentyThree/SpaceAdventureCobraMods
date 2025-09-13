@@ -12,6 +12,10 @@ public static class CobraPatches
     private const audioSelectionData.eCLIP StandingStillDodgeSound = audioSelectionData.eCLIP.PLY_DODGESTATIC;
     private const audioSelectionData.eCLIP InAirDodgeSound = audioSelectionData.eCLIP.PLY_DODGEINAIR;
 
+    private const string CobraPsychogunMeshName = "msh_chr_CobraPsycho";
+    private const string CobraRevolverLMeshName = "msh_CobraRevolverHandL";
+    private const string CobraRevolverRMeshName = "CobraRevolverHandR";
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(CobraCharacter.Start))]
     private static void StartPostfix(CobraCharacter __instance)
@@ -34,7 +38,31 @@ public static class CobraPatches
             else
             {
                 Plugin.Logger.LogWarning("Failed to find afterglow particle effect!");
-            }   
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(CobraCharacter.Update))]
+    private static void UpdatePostfix(CobraCharacter __instance)
+    {
+        if ((CutscenePlayer.IsPlaying && __instance.movingX.postDashTimer < 0.3f) || (!__instance.isDead() &&
+                (__instance.successfulDodgeTimer < __instance.dodge.successfulDodgeTime ||
+                 (__instance.dodge.permaBlue && __instance.isDodging()))))
+        {
+            for (int i = 0; i < __instance.dependencies.allRenderers.Length; i++)
+            {
+                var renderer = __instance.dependencies.allRenderers[i];
+                if (renderer == null)
+                    continue;
+                if (renderer.gameObject.name != CobraPsychogunMeshName &&
+                    renderer.gameObject.name != CobraRevolverLMeshName &&
+                    renderer.gameObject.name != CobraRevolverRMeshName)
+                    continue;
+                var sharedMaterials = renderer.sharedMaterials;
+                sharedMaterials[0] = __instance.defaultMats[i];
+                renderer.sharedMaterials = sharedMaterials;
+            }
         }
     }
 
@@ -52,7 +80,7 @@ public static class CobraPatches
 
         return codeMatcher.Instructions();
     }
-    
+
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(CobraCharacter.UpdateCrouchedState))]
     private static IEnumerable<CodeInstruction> UpdateCrouchedStateTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -67,7 +95,7 @@ public static class CobraPatches
 
         return codeMatcher.Instructions();
     }
-    
+
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(CobraCharacter.UpdateInAirState))]
     private static IEnumerable<CodeInstruction> UpdateInAirStateTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -90,7 +118,7 @@ public static class CobraPatches
 
         return codeMatcher.Instructions();
     }
-    
+
     private static bool IsSoundInstruction(CodeInstruction instruction, audioSelectionData.eCLIP sound)
     {
         if (instruction.opcode != OpCodes.Ldc_I4 && instruction.opcode != OpCodes.Ldc_I4_S)
