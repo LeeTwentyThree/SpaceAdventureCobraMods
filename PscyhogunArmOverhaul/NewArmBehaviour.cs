@@ -52,14 +52,14 @@ public class NewArmBehaviour : MonoBehaviour
         if (_puttingArmBackOn || _takingArmOff)
             return;
 
-        if (_prostheticOn)
+        if (_prostheticOn && TokenController.GetTokenValue(Token.HardCodedTokens.ForcePsychogunOff) <= 1)
         {
             if (Input.GetKeyDown(Plugin.KeyboardBinding.Value) || GetDPadButton(Plugin.ControllerDPadOption.Value))
             {
                 StartCoroutine(TakeArmOff());
             }
         }
-        else
+        else if (!_prostheticOn && TokenController.GetTokenValue(Token.HardCodedTokens.ForcePsychogunOn) <= 1)
         {
             if (Input.GetKeyDown(Plugin.KeyboardBinding.Value) || GetDPadButton(Plugin.ControllerDPadOption.Value))
             {
