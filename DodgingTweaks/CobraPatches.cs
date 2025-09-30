@@ -15,6 +15,7 @@ public static class CobraPatches
     private const string CobraPsychogunMeshName = "msh_chr_CobraPsycho";
     private const string CobraRevolverLMeshName = "msh_CobraRevolverHandL";
     private const string CobraRevolverRMeshName = "CobraRevolverHandR";
+    private const string CobraRevolverHipMeshName = "msh_CobraRevolverHip_00";
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(CobraCharacter.Start))]
@@ -57,7 +58,8 @@ public static class CobraPatches
                     continue;
                 if (renderer.gameObject.name != CobraPsychogunMeshName &&
                     renderer.gameObject.name != CobraRevolverLMeshName &&
-                    renderer.gameObject.name != CobraRevolverRMeshName)
+                    renderer.gameObject.name != CobraRevolverRMeshName &&
+                    renderer.gameObject.name != CobraRevolverHipMeshName)
                     continue;
                 var sharedMaterials = renderer.sharedMaterials;
                 sharedMaterials[0] = __instance.defaultMats[i];
