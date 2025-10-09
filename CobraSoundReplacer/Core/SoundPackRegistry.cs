@@ -19,6 +19,9 @@ public static class SoundPackRegistry
 
     internal static readonly Dictionary<ushort, AudioClip> SoundReplacements = new();
     internal static readonly Dictionary<ushort, float> CustomSoundVolumes = new();
+    internal static readonly Dictionary<string, ushort> NewSoundsIDs = new();
+    internal static readonly Dictionary<ushort, AudioClip> NewSoundClips = new();
+    internal static readonly Dictionary<ushort, NewSound> NewSoundData = new();
 
     public static IEnumerator RegisterSoundPack(SoundPack pack, string containingFolderPath)
     {
@@ -85,6 +88,27 @@ public static class SoundPackRegistry
         {
             yield return RefreshPack(pack.Value);
         }
+
+        // Register new custom sounds into cAudio:
+        
+        var allClips = _cAudio.AllClip;
+        var newArray = new CAudio.CAudioClip[allClips.Length + NewSoundClips.Count];
+        allClips.CopyTo(newArray, 0);
+        int i = 0;
+        foreach (var newSound in NewSoundsIDs)
+        {
+            var data = NewSoundData[newSound.Value];
+            newArray[allClips.Length + i] = new CAudio.CAudioClip
+            {
+                clip = NewSoundClips[newSound.Value],
+                loadname = newSound.Key,
+                type = (CAudio.eVolumeType)data.VolumeType,
+                loop = data.Looping
+            };
+            i++;
+        }
+
+        _cAudio.AllClip = newArray;
     }
 
     private static IEnumerator RefreshPack(RegisteredSoundPack pack)
@@ -102,10 +126,22 @@ public static class SoundPackRegistry
 
     private static IEnumerator InitializeSoundPack(RegisteredSoundPack pack)
     {
-        foreach (var replacement in pack.Pack.SoundReplacements)
+        if (pack.Pack.NewSounds != null)
         {
-            yield return SetSoundReplacement(replacement.OriginalFileName,
-                Path.Combine(pack.ContainingFolderPath, replacement.ReplacementFilePath), replacement.Volume);
+            foreach (var newSound in pack.Pack.NewSounds)
+            {
+                yield return AddNewSound(newSound.ClipName,
+                    Path.Combine(pack.ContainingFolderPath, newSound.FilePath), newSound);
+            }   
+        }
+
+        if (pack.Pack.SoundReplacements != null)
+        {
+            foreach (var replacement in pack.Pack.SoundReplacements)
+            {
+                yield return SetSoundReplacement(replacement.OriginalFileName,
+                    Path.Combine(pack.ContainingFolderPath, replacement.ReplacementFilePath), replacement.Volume);
+            }   
         }
 
         pack.InitializedEver = true;
@@ -137,6 +173,31 @@ public static class SoundPackRegistry
         
         SoundReplacements[index] = clip;
         CustomSoundVolumes[index] = volume;
+    }
+    
+    private static IEnumerator AddNewSound(string clipName, string filePath, NewSound soundData)
+    {
+        var newIndex = _soundDatabase.GetNewReservedIndex();
+        
+        var result = new TaskResult<AudioClip>();
+        var loadedClip = AudioLoadingUtils.LoadAudioClipFromPath(filePath, result);
+        yield return loadedClip;
+        if (!result.Success)
+        {
+            Plugin.Logger.LogWarning($"Failed to load sound file at path '{filePath}'.");
+            yield break;
+        }
+
+        var clip = result.GetResult();
+        if (clip == null)
+        {
+            Plugin.Logger.LogWarning($"Clip from path '{filePath}' is nulL!.");
+            yield break;
+        }
+        
+        NewSoundsIDs.Add(clipName, newIndex);
+        NewSoundClips.Add(newIndex, clip);
+        NewSoundData.Add(newIndex, soundData);
     }
 
     private class RegisteredSoundPack

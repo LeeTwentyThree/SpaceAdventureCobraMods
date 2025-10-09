@@ -19,7 +19,8 @@ public static class CAudioPatcher
     }
 }
 
-[HarmonyPatch(typeof(CAudio), nameof(CAudio.play), typeof(ushort), typeof(float), typeof(float), typeof(CAudio.eVolumeType), typeof(bool), typeof(audioSelectionData.eCLIP))]
+[HarmonyPatch(typeof(CAudio), nameof(CAudio.play), typeof(ushort), typeof(float), typeof(float),
+    typeof(CAudio.eVolumeType), typeof(bool), typeof(audioSelectionData.eCLIP))]
 public static class PlayAudioByIdPatch
 {
     static void Prefix(ushort idx, ref float vol)
@@ -28,8 +29,12 @@ public static class PlayAudioByIdPatch
         {
             vol *= customVolume;
         }
+        else if (SoundPackRegistry.NewSoundData.TryGetValue(idx, out var newSoundData))
+        {
+            vol *= newSoundData.Volume;
+        }
     }
-    
+
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
         var codeMatcher = new CodeMatcher(instructions, generator);
@@ -42,10 +47,9 @@ public static class PlayAudioByIdPatch
         var resumeTarget = codeMatcher
             .MatchForward(true, new CodeMatch(OpCodes.Pop))
             .ThrowIfInvalid("Couldn't find pop")
-            .Advance(1).
-            Instruction;
+            .Advance(1).Instruction;
         resumeTarget.labels.Add(setVolumeLabel);
-        
+
         // Find label for where the addressable sound normally loads
         codeMatcher.Start();
         var addressableLoadLabel = generator.DefineLabel();
@@ -57,7 +61,7 @@ public static class PlayAudioByIdPatch
             .ThrowIfInvalid("Couldn't find start of normal addressable loading")
             .Instruction;
         addressableLoadTarget.labels.Add(addressableLoadLabel);
-        
+
         codeMatcher.Start();
         codeMatcher.MatchForward(true, new CodeMatch(OpCodes.Ldstr))
             // FIND STARTING POINT
@@ -89,26 +93,30 @@ public static class PlayAudioByIdPatch
             .ThrowIfInvalid("Failed to insert loading of the sound ID.")
             .InsertAndAdvance(CodeInstruction.Call(typeof(PlayAudioByIdPatch), nameof(GetCustomSound)))
             .ThrowIfInvalid("Failed to insert call to get the custom sound clip.")
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertySetter(typeof(AudioSource), nameof(AudioSource.clip))))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Callvirt,
+                AccessTools.PropertySetter(typeof(AudioSource), nameof(AudioSource.clip))))
             .ThrowIfInvalid("Failed to insert call to set the clip.")
             // RETURN TO NORMAL OPERATION
             .InsertAndAdvance(new CodeInstruction(OpCodes.Br, setVolumeLabel))
             .ThrowIfInvalid("Failed to insert jump to after the original clip loading logic.");
-        
+
         return codeMatcher.Instructions();
     }
-
+    
     private static bool IsSoundOverriden(ushort soundId)
     {
-        return SoundPackRegistry.SoundReplacements.ContainsKey(soundId);
+        return SoundPackRegistry.NewSoundClips.ContainsKey(soundId) ||
+               SoundPackRegistry.SoundReplacements.ContainsKey(soundId);
     }
 
     private static AudioClip GetCustomSound(ushort soundId)
     {
-        if (!SoundPackRegistry.SoundReplacements.TryGetValue(soundId, out var sound) || sound == null)
+        if (!SoundPackRegistry.NewSoundClips.TryGetValue(soundId, out var clip) &&
+            !SoundPackRegistry.SoundReplacements.TryGetValue(soundId, out clip))
         {
-            Plugin.Logger.LogError("Failed to find sound replacement by ID " + soundId);
+            Plugin.Logger.LogError("Failed to find custom sound clip or sound replacement by ID " + soundId);
         }
-        return sound;
+
+        return clip;
     }
 }

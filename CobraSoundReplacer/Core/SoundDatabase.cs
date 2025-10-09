@@ -8,6 +8,8 @@ public class SoundDatabase(CAudio cAudio)
     private Dictionary<string, ushort> _indexFromFileName;
     private Dictionary<ushort, string> _fileNameFromIndex;
 
+    private ushort _nextFreeIndex;
+
     public void InitializeDatabase()
     {
         var allClips = cAudio.AllClip;
@@ -19,6 +21,8 @@ public class SoundDatabase(CAudio cAudio)
             _indexFromFileName.Add(allClips[i].loadname, i);
             _fileNameFromIndex.Add(i, allClips[i].loadname);
         }
+
+        _nextFreeIndex = (ushort)allClips.Length;
     }
 
     public bool TryGetFileNameFromIndex(ushort index, out string fileName)
@@ -39,5 +43,12 @@ public class SoundDatabase(CAudio cAudio)
             sb.Append($"{entry.Key.ToString(),-5}: {entry.Value}\n");
         }
         System.IO.File.WriteAllText(path, sb.ToString());
+    }
+
+    public ushort GetNewReservedIndex()
+    {
+        var freeIndex = _nextFreeIndex;
+        _nextFreeIndex++;
+        return freeIndex;
     }
 }
