@@ -8,4 +8,9 @@ public static class CustomSoundUtils
     {
         return SoundPackRegistry.NewSoundsIDs.TryGetValue(clipName, out id);
     }
+    
+    public static bool TryGetEClip(string eClipId, out audioSelectionData.eCLIP eClip)
+    {
+        return SoundPackRegistry.CustomEClips.TryGetValue(eClipId, out eClip);
+    }
 }

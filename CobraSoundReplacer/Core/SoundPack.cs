@@ -19,6 +19,10 @@ public class SoundPack
     [CanBeNull]
     public NewSound[] NewSounds { get; set; }
 
+    [JsonProperty("eclips")]
+    [CanBeNull]
+    public CustomEClip[] NewEClips { get; set; }
+
     [JsonConstructor]
     public SoundPack()
     {

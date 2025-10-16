@@ -22,6 +22,10 @@ public static class SoundPackRegistry
     internal static readonly Dictionary<string, ushort> NewSoundsIDs = new();
     internal static readonly Dictionary<ushort, AudioClip> NewSoundClips = new();
     internal static readonly Dictionary<ushort, NewSound> NewSoundData = new();
+    internal static readonly Dictionary<string, audioSelectionData.eCLIP> CustomEClips = new();
+    internal static readonly Dictionary<audioSelectionData.eCLIP, string> CustomEClipSounds = new();
+
+    private static ushort _nextFreeCustomEClipIndex = 500;
 
     public static IEnumerator RegisterSoundPack(SoundPack pack, string containingFolderPath)
     {
@@ -144,6 +148,14 @@ public static class SoundPackRegistry
             }   
         }
 
+        if (pack.Pack.NewEClips != null)
+        {
+            foreach (var eClip in pack.Pack.NewEClips)
+            {
+                RegisterEClip(eClip.Id, eClip.SoundName);
+            }
+        }
+
         pack.InitializedEver = true;
     }
 
@@ -198,6 +210,13 @@ public static class SoundPackRegistry
         NewSoundsIDs.Add(clipName, newIndex);
         NewSoundClips.Add(newIndex, clip);
         NewSoundData.Add(newIndex, soundData);
+    }
+
+    private static void RegisterEClip(string id, string soundName)
+    {
+        var eClip = (audioSelectionData.eCLIP)_nextFreeCustomEClipIndex++;
+        CustomEClips.Add(id, eClip);
+        CustomEClipSounds.Add(eClip, soundName);
     }
 
     private class RegisteredSoundPack
