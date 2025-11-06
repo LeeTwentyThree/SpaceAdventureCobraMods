@@ -14,7 +14,6 @@ public class Plugin : BaseUnityPlugin
     internal static new ManualLogSource Logger;
 
     public static ConfigEntry<KeyCode> KeyboardBinding;
-    public static ConfigEntry<DPadDirection> ControllerDPadOption;
     public static ConfigEntry<float> ArmOffSound;
     
     internal static AssetBundle Bundle { get; private set; }
@@ -32,12 +31,6 @@ public class Plugin : BaseUnityPlugin
             "The button that replaces the arm on PC."
         );
         
-        ControllerDPadOption = Config.Bind("Controls",
-            "DPadButton",
-            DPadDirection.Left,
-            "The D-pad button that replaces the arm when playing on controllers."
-        );
-
         ArmOffSound = Config.Bind("Audio",
             "ArmOffSoundVolume",
             0.5f,

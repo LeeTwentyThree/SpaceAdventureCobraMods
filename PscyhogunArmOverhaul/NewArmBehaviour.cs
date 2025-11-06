@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Rewired;
 using UnityEngine;
 using UnityEngine.Animations;
 
@@ -54,14 +55,14 @@ public class NewArmBehaviour : MonoBehaviour
 
         if (_prostheticOn && TokenController.GetTokenValue(Token.HardCodedTokens.ForcePsychogunOff) <= 1)
         {
-            if (Input.GetKeyDown(Plugin.KeyboardBinding.Value) || GetDPadButton(Plugin.ControllerDPadOption.Value))
+            if (Input.GetKeyDown(Plugin.KeyboardBinding.Value) || GetRightStickClick())
             {
                 StartCoroutine(TakeArmOff());
             }
         }
         else if (!_prostheticOn && TokenController.GetTokenValue(Token.HardCodedTokens.ForcePsychogunOn) <= 1)
         {
-            if (Input.GetKeyDown(Plugin.KeyboardBinding.Value) || GetDPadButton(Plugin.ControllerDPadOption.Value))
+            if (Input.GetKeyDown(Plugin.KeyboardBinding.Value) || GetRightStickClick())
             {
                 StartCoroutine(PutArmBackOn());
             }
@@ -169,24 +170,11 @@ public class NewArmBehaviour : MonoBehaviour
         }
     }
 
-    private static bool GetDPadButton(DPadDirection dpad)
+    private static bool GetRightStickClick()
     {
-        float horizontal = Input.GetAxis("6th axis"); // X
-        float vertical = Input.GetAxis("7th axis"); // Y
-
-        switch (dpad)
-        {
-            case DPadDirection.Up:
-                return vertical > DPadThreshold;
-            case DPadDirection.Down:
-                return vertical < -DPadThreshold;
-            case DPadDirection.Left:
-                return horizontal < -DPadThreshold;
-            case DPadDirection.Right:
-                return horizontal > DPadThreshold;
-            default:
-                Plugin.Logger.LogWarning("Invalid DPadDirection: " + dpad);
-                return false;
-        }
+        if (ReInput.controllers.joystickCount == 0)
+            return false;
+        Joystick j = ReInput.controllers.Joysticks[0];
+        return j.GetButton(10);
     }
 }
