@@ -20,8 +20,8 @@ public class Plugin : BaseUnityPlugin
         Logger = base.Logger;
 
         ChargingSoundVolumeMultiplier = Config.Bind("General",
-            "ChargingSoundVolumeMultiplier",
-            0f,
+            "ChargeSoundVolumeMultiplier",
+            1f,
             "The volume multiplier for the charging sound."
         );
         
