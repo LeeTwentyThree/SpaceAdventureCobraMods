@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Product>ChargedShotsBreakShields</Product>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -31,6 +31,9 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\CobraSoundReplacer\dependencies\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="CobraSoundReplacer">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cobra\BepInEx\plugins\CobraSoundReplacer\CobraSoundReplacer.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

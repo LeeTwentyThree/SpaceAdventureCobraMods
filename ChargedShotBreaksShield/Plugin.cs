@@ -5,6 +5,7 @@ using HarmonyLib;
 
 namespace ChargedShotsBreakShields;
 
+[BepInDependency("com.lee23.cobrasoundreplacer")]
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
