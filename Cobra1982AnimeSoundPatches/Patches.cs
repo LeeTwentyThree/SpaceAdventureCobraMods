@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using UnityEngine.Audio;
 
 namespace Cobra1982AnimeSoundPatches;
 

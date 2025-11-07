@@ -50,6 +50,20 @@ public static class Patches
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(typeof(AudioController), nameof(AudioController.PlaySound), typeof(audioSelectionData.eCLIP),
+        typeof(float), typeof(byte), typeof(byte), typeof(float))]
+    private static void PenetratingShotMixerFixPatch(ref audioSelectionData.eCLIP _clip, CAudio.CPlayingAudioData __result)
+    {
+        if (_clip != _penetratingShotSound)
+            return;
+        if (__result.asrc == null)
+            return;
+        
+        Plugin.LoudSoundMixerGroup.audioMixer.SetFloat("_VolumeGain", Plugin.PenetratingShotDecibelGain.Value);
+        __result.asrc.outputAudioMixerGroup = Plugin.LoudSoundMixerGroup;
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(CobraCharacter), nameof(CobraCharacter.ShootSub))]
     private static void ShootSubPostfix()
     {

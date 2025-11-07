@@ -10,7 +10,7 @@ namespace Cobra1982AnimeSoundPatches;
 public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
-
+    
     internal static ConfigEntry<bool> DisableChargeSoundLoop { get; private set; }
 
     private void Awake()
