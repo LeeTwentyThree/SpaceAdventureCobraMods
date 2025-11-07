@@ -30,4 +30,26 @@ public static class Patches
             }
         }
     }
+
+    private const int PsychogunChargeSlsIndex = 0;
+    private const float AudioPlayDuration = 0.98f;
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(AudioController), nameof(AudioController.UpdateSingleLoopSounds))]
+    public static void ForcePsychogunChargeSoundToPlayFullyPatch(AudioController __instance)
+    {
+        if (__instance.m_SLS_UsedCount[PsychogunChargeSlsIndex] <= 0)
+            return;
+
+        if (__instance.m_SLS_PAD[PsychogunChargeSlsIndex] == null)
+            return;
+
+        var chargeSound = __instance.m_SLS_PAD[PsychogunChargeSlsIndex];
+
+        if (chargeSound.asrc != null && chargeSound.asrc.clip != null &&
+            chargeSound.asrc.time < chargeSound.asrc.clip.length * AudioPlayDuration)
+        {
+            __instance.m_SLS_UsedCount[PsychogunChargeSlsIndex] = 2;
+        }
+    }
 }
