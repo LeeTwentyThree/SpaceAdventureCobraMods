@@ -35,6 +35,31 @@ public static class Patches
     private const int PsychogunChargeSlsIndex = 0;
     private const float AudioPlayDuration = 0.98f;
 
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(AudioController), nameof(AudioController.PlaySound), typeof(audioSelectionData.eCLIP),
+        typeof(float), typeof(byte), typeof(byte), typeof(float))]
+    private static void ChangePsychogunVolumePatch(ref audioSelectionData.eCLIP _clip, CAudio.CPlayingAudioData __result)
+    {
+        if (_clip == audioSelectionData.eCLIP.PLY_SHOOT_PG_CHARGEDLAUNCHED)
+        {
+            if (__result.asrc == null)
+                return;
+        
+            Plugin.PsychogunMixerGroup.audioMixer.SetFloat("_VolumeGain", Plugin.PyschogunShotDecibelGain.Value);
+            __result.asrc.outputAudioMixerGroup = Plugin.PsychogunMixerGroup;
+        }
+        else if (_clip == audioSelectionData.eCLIP.PLR_PSYCHOGUN_SUPERGUIDED_SHOT)
+        {
+            if (__result.asrc == null)
+                return;
+        
+            Plugin.SuperShotMixerGroup.audioMixer.SetFloat("_VolumeGain", Plugin.SuperShotDecibelGain.Value);
+            __result.asrc.outputAudioMixerGroup = Plugin.SuperShotMixerGroup;
+
+        }
+    }
+    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AudioController), nameof(AudioController.UpdateSingleLoopSounds))]
     public static void ForcePsychogunChargeSoundToPlayFullyPatch(AudioController __instance)
