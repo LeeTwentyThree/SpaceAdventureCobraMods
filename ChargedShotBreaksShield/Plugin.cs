@@ -29,10 +29,9 @@ public class Plugin : BaseUnityPlugin
         
         try
         {
-            string bundleName = "chargedshotsbreakshield";
-            string assetName = "LouderGroup";
-            string bundlePath = Path.Combine(Path.GetDirectoryName(assembly.Location), bundleName); 
-            // (or use Path.Combine(Paths.PluginPath, "YourPluginFolder", bundleName) if it's in a subfolder)
+            var bundleName = "chargedshotsbreakshield";
+            var assetName = "LouderGroup";
+            var bundlePath = Path.Combine(Path.GetDirectoryName(assembly.Location), bundleName); 
 
             if (!File.Exists(bundlePath))
             {
@@ -40,22 +39,21 @@ public class Plugin : BaseUnityPlugin
                 return;
             }
 
-            AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);
+            var bundle = AssetBundle.LoadFromFile(bundlePath);
             if (bundle == null)
             {
                 Logger.LogError("Failed to load AssetBundle!");
                 return;
             }
 
-            AudioMixer mixer = bundle.LoadAsset<AudioMixer>(assetName);
+            var mixer = bundle.LoadAsset<AudioMixer>(assetName);
             if (mixer == null)
             {
                 Logger.LogError($"AudioMixer '{assetName}' not found in bundle!");
                 return;
             }
 
-            // Get the "Master" group from the mixer
-            AudioMixerGroup[] groups = mixer.FindMatchingGroups("Master");
+            var groups = mixer.FindMatchingGroups("Master");
             if (groups.Length > 0)
             {
                 LoudSoundMixerGroup = groups[0];
@@ -66,9 +64,9 @@ public class Plugin : BaseUnityPlugin
                 Logger.LogWarning("No 'Master' group found in the mixer!");
             }
         }
-        catch (System.Exception ex)
+        catch (System.Exception e)
         {
-            Logger.LogError($"Error loading AudioMixer: {ex}");
+            Logger.LogError("Error loading AudioMixer: " + e);
         }
 
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
