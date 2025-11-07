@@ -32,7 +32,7 @@ public static class CobraCharacterPatches
         return codeMatcher.Instructions();
     }
 
-    private static float MultiplyVolumeForCharging(float originalVolume) => Plugin.ChargingSoundVolumeMultiplier.Value;
-    private static float MultiplyVolumeForCharged(float originalVolume) => Plugin.ChargedSoundVolumeMultiplier.Value;
-    private static float MultiplyVolumeForJustCharged(float originalVolume) => Plugin.JustChargedSoundVolumeMultiplier.Value;
+    private static float MultiplyVolumeForCharging(float originalVolume) => originalVolume * Plugin.ChargingSoundVolumeMultiplier.Value;
+    private static float MultiplyVolumeForCharged(float originalVolume) => originalVolume * Plugin.ChargedSoundVolumeMultiplier.Value;
+    private static float MultiplyVolumeForJustCharged(float originalVolume) => originalVolume * Plugin.JustChargedSoundVolumeMultiplier.Value;
 }
