@@ -16,9 +16,11 @@ public class Plugin : BaseUnityPlugin
     
     internal static ConfigEntry<float> PyschogunShotDecibelGain { get; private set; }
     internal static ConfigEntry<float> SuperShotDecibelGain { get; private set; }
+    internal static ConfigEntry<float> ChargeSoundDecibelGain { get; private set; }
     internal static ConfigEntry<bool> DisableChargeSoundLoop { get; private set; }
     internal static AudioMixerGroup PsychogunMixerGroup { get; private set; }
     internal static AudioMixerGroup SuperShotMixerGroup { get; private set; }
+    internal static AudioMixerGroup ChargeSoundMixerGroup { get; private set; }
     
     internal static AssetBundle Bundle { get; private set; }
 
@@ -32,13 +34,13 @@ public class Plugin : BaseUnityPlugin
         
         PyschogunShotDecibelGain = Config.Bind("General", "Psychogun shot decibel gain", 1.5f);
         SuperShotDecibelGain = Config.Bind("General", "Super shot decibel gain", 0f);
+        ChargeSoundDecibelGain = Config.Bind("General", "Psychogun charge decibel gain", 7f);
         DisableChargeSoundLoop = Config.Bind("General", "Disable charge sound loop", true);
         
         try
         {
             var bundleName = "1982animesoundassets";
-            var psychogunMixerName = "NormalPsychogunShotMixer";
-            var superShotMixerName = "SuperShotMixer";
+            
             var bundlePath = Path.Combine(Path.GetDirectoryName(assembly.Location), bundleName); 
 
             if (!File.Exists(bundlePath))
@@ -54,6 +56,7 @@ public class Plugin : BaseUnityPlugin
                 return;
             }
 
+            var psychogunMixerName = "NormalPsychogunShotMixer";
             var psychogunMixer = Bundle.LoadAsset<AudioMixer>(psychogunMixerName);
             if (psychogunMixer == null)
             {
@@ -72,6 +75,7 @@ public class Plugin : BaseUnityPlugin
                 Logger.LogWarning("No 'Master' group found in the mixer!");
             }
             
+            var superShotMixerName = "SuperShotMixer";
             var superShotMixer = Bundle.LoadAsset<AudioMixer>(superShotMixerName);
             if (superShotMixer == null)
             {
@@ -84,6 +88,25 @@ public class Plugin : BaseUnityPlugin
             {
                 SuperShotMixerGroup = superShotGroups[0];
                 Logger.LogInfo($"Loaded mixer group: {SuperShotMixerGroup.name}");
+            }
+            else
+            {
+                Logger.LogWarning("No 'Master' group found in the mixer!");
+            }
+            
+            var chargeSoundMixerName = "ChargeSoundMixer";
+            var chargeSoundMixer = Bundle.LoadAsset<AudioMixer>(chargeSoundMixerName);
+            if (chargeSoundMixer == null)
+            {
+                Logger.LogError($"AudioMixer '{chargeSoundMixerName}' not found in bundle!");
+                return;
+            }
+
+            var chargeSoundGroups = chargeSoundMixer.FindMatchingGroups("Master");
+            if (chargeSoundGroups.Length > 0)
+            {
+                ChargeSoundMixerGroup = chargeSoundGroups[0];
+                Logger.LogInfo($"Loaded mixer group: {ChargeSoundMixerGroup.name}");
             }
             else
             {

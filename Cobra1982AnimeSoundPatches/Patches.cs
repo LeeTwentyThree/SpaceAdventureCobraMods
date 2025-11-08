@@ -38,8 +38,11 @@ public static class Patches
     [HarmonyPostfix]
     [HarmonyPatch(typeof(AudioController), nameof(AudioController.PlaySound), typeof(audioSelectionData.eCLIP),
         typeof(float), typeof(byte), typeof(byte), typeof(float))]
-    private static void ChangePsychogunVolumePatch(ref audioSelectionData.eCLIP _clip, CAudio.CPlayingAudioData __result)
+    private static void ChangeVolumesPatch(ref audioSelectionData.eCLIP _clip, CAudio.CPlayingAudioData __result)
     {
+        if (__result == null)
+            return;
+        
         if (_clip == audioSelectionData.eCLIP.PLY_SHOOT_PG_CHARGEDLAUNCHED)
         {
             if (__result.asrc == null)
@@ -55,6 +58,14 @@ public static class Patches
         
             Plugin.SuperShotMixerGroup.audioMixer.SetFloat("_VolumeGain", Plugin.SuperShotDecibelGain.Value);
             __result.asrc.outputAudioMixerGroup = Plugin.SuperShotMixerGroup;
+        }
+        else if (_clip == audioSelectionData.eCLIP.PLY_SHOOT_PG_CHARGING)
+        {
+            if (__result.asrc == null)
+                return;
+        
+            Plugin.ChargeSoundMixerGroup.audioMixer.SetFloat("_VolumeGain", Plugin.ChargeSoundDecibelGain.Value);
+            __result.asrc.outputAudioMixerGroup = Plugin.ChargeSoundMixerGroup;
 
         }
     }
