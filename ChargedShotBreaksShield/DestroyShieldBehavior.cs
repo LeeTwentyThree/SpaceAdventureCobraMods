@@ -25,6 +25,12 @@ public class DestroyShieldBehavior : MonoBehaviour
         {
             protection.ManageDestruction(true);
         }
+        var field = other.GetComponentInParent<NmiField>();
+        if (field != null)
+        {
+            if (field.gameObject.name == "NmiField_FieldForceSpheric")
+                Destroy(field.gameObject);
+        }
     }
 
     private void FixedUpdate()
