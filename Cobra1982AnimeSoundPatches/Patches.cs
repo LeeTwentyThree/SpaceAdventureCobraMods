@@ -34,6 +34,7 @@ public static class Patches
 
     private const int PsychogunChargeSlsIndex = 0;
     private const float AudioPlayDuration = 0.98f;
+    private const float MinClipPercentForChargeSoundToStick = 0.5f;
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(AudioController), nameof(AudioController.PlaySound), typeof(audioSelectionData.eCLIP),
@@ -83,8 +84,9 @@ public static class Patches
 
         var chargeSound = __instance.m_SLS_PAD[PsychogunChargeSlsIndex];
 
-        if (chargeSound.asrc != null && chargeSound.asrc.clip != null &&
-            chargeSound.asrc.time < chargeSound.asrc.clip.length * AudioPlayDuration)
+        if (chargeSound.asrc != null && chargeSound.asrc.clip != null
+            && chargeSound.asrc.time > chargeSound.asrc.clip.length * MinClipPercentForChargeSoundToStick
+            && chargeSound.asrc.time < chargeSound.asrc.clip.length * AudioPlayDuration)
         {
             __instance.m_SLS_UsedCount[PsychogunChargeSlsIndex] = 2;
         }
