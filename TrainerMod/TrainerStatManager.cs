@@ -11,6 +11,7 @@ public class TrainerStatManager : MonoBehaviour
     private bool _crystalBowieInstanceExists;
 
     private float? _defaultRevolverDamage;
+    private float? _defaultCigarDamage;
 
     private void Start()
     {
@@ -89,8 +90,8 @@ public class TrainerStatManager : MonoBehaviour
 
     private void OnSuperShotDamageChanged(object sender, EventArgs e)
     {
-        cobra.dependencies.superGuidedShotLV2.GetComponent<SuperGuidedProjectileV2>().damage =
-            Plugin.SuperShotDamage.Value;
+        // cobra.dependencies.superGuidedShotLV2.GetComponent<SuperGuidedProjectileV2>().damage =
+        //   Plugin.SuperShotDamage.Value;
     }
 
     private void OnUnlimitedSuperShotsChanged(object sender, EventArgs e)
@@ -104,17 +105,26 @@ public class TrainerStatManager : MonoBehaviour
         {
             _defaultRevolverDamage = projectile.damage;
         }
-        projectile.damage = _crystalBowieInstanceExists ? _defaultRevolverDamage.Value : Plugin.RevolverDamage.Value;
+        projectile.damage = (_crystalBowieInstanceExists || Plugin.RevolverDamage.Value < 0) ? _defaultRevolverDamage.Value : Plugin.RevolverDamage.Value;
     }
 
     private void OnCigarDamageChanged(object sender, EventArgs e)
     {
-        cobra.explosiveCigarParams.prefab.GetComponent<ExplosiveCigar>().explosion.transform.Find("OneShotExplosion")
-                .GetComponent<OneShotExplosion>().dmg = Plugin.CigarDamage.Value;
+        var explosion = cobra.explosiveCigarParams.prefab.GetComponent<ExplosiveCigar>().explosion.transform
+            .Find("OneShotExplosion")
+            .GetComponent<OneShotExplosion>();
+
+        if (!_defaultCigarDamage.HasValue)
+        {
+            _defaultCigarDamage = explosion.dmg;
+        }
+        
+        explosion.dmg = Plugin.CigarDamage.Value < 0f ? _defaultCigarDamage.Value : Plugin.CigarDamage.Value;
     }
 
     private void OnUnlimitedCigarsChanged(object sender, EventArgs e)
     {
+        
     }
 
     private void OnCobraHealthChanged(object sender, EventArgs e)

@@ -31,7 +31,9 @@ public class Plugin : BaseUnityPlugin
     private const float DefaultCigarDamage = 10f;
     private const float DefaultCobraHealth = 8f;
 
-    private const string SettingFormat =
+    private const string SettingFormat = "{0}";
+    
+    private const string SettingFormatNumbers =
         "{0} A value of -1 means this is NOT used and that the game will use the default value.";
 
     private void Awake()
@@ -48,36 +50,41 @@ public class Plugin : BaseUnityPlugin
     private void RegisterConfig()
     {
         PsychogunDamage = Config.Bind("Psychogun", "Psychogun shot damage", DefaultPsychogunDamage,
-            new ConfigDescription(FormatDesc("The damage of the charged Psychogun shot.")));
+            new ConfigDescription(FormatNumberDesc("The damage of the charged Psychogun shot.")));
         PsychogunPenetratingShotDamage = Config.Bind("Psychogun", "Fully charged psychogun shot damage",
             DefaultPenetratingPsychogunShotDamage,
-            new ConfigDescription(FormatDesc("The damage of the charged Psychogun shot.")));
+            new ConfigDescription(FormatNumberDesc("The damage of the charged Psychogun shot.")));
         CurvedShotDamage = Config.Bind("Guided Shot", "Guided shot damage",
             DefaultCurvedShotDamage,
-            new ConfigDescription(FormatDesc("The damage of the guided shot.")));
+            new ConfigDescription(FormatNumberDesc("The damage of the guided shot.")));
         CurvedShotMode = Config.Bind("Guided Shot", "Guided shot mode",
             GuidedShotMode.Normal,
             new ConfigDescription(FormatDesc("How often the guided shot can be used.")));
         SuperShotDamage = Config.Bind("Super Shot", "Super shot damage",
             DefaultSuperShotDamage,
-            new ConfigDescription(FormatDesc("The damage of the super shot.")));
+            new ConfigDescription(FormatNumberDesc("The damage of the super shot.")));
         UnlimitedSuperShots = Config.Bind("Super Shot", "Unlimited super shots",
             false,
             new ConfigDescription(FormatDesc("If true, the requirements for the super shot are disabled.")));
         RevolverDamage = Config.Bind("Revolver", "Revolver damage",
             DefaultRevolverDamage,
-            new ConfigDescription(FormatDesc("The damage of the Python 77 Revolver.")));
+            new ConfigDescription(FormatNumberDesc("The damage of the Python 77 Revolver.")));
         CigarDamage = Config.Bind("Cigars", "Explosive cigar damage",
             DefaultCigarDamage,
-            new ConfigDescription(FormatDesc("The damage of the explosive cigars.")));
+            new ConfigDescription(FormatNumberDesc("The damage of the explosive cigars.")));
         UnlimitedCigars = Config.Bind("Cigars", "Unlimited cigars",
             false,
             new ConfigDescription(FormatDesc("If true, the cooldown on cigars is disabled.")));
         CobraHealth = Config.Bind("Cobra", "Cobra health",
             DefaultCobraHealth,
-            new ConfigDescription(FormatDesc("The maximum health of Cobra.")));
+            new ConfigDescription(FormatNumberDesc("The maximum health of Cobra.")));
     }
 
+    private static string FormatNumberDesc(string description)
+    {
+        return string.Format(SettingFormatNumbers, description);
+    }
+    
     private static string FormatDesc(string description)
     {
         return string.Format(SettingFormat, description);
