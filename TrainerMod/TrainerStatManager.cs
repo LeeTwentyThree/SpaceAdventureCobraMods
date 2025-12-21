@@ -18,7 +18,6 @@ public class TrainerStatManager : MonoBehaviour
         Plugin.PsychogunDamage.SettingChanged += OnPsychogunDamageChanged;
         Plugin.PsychogunPenetratingShotDamage.SettingChanged += OnPsychogunPenetratingShotDamageChanged;
         Plugin.CurvedShotMode.SettingChanged += OnCurvedShotModeChanged;
-        Plugin.SuperShotDamage.SettingChanged += OnSuperShotDamageChanged;
         Plugin.UnlimitedSuperShots.SettingChanged += OnUnlimitedSuperShotsChanged;
         Plugin.RevolverDamage.SettingChanged += OnRevolverDamageChanged;
         Plugin.CigarDamage.SettingChanged += OnCigarDamageChanged;
@@ -28,7 +27,6 @@ public class TrainerStatManager : MonoBehaviour
         OnPsychogunDamageChanged(null, null);
         OnPsychogunPenetratingShotDamageChanged(null, null);
         OnCurvedShotModeChanged(null, null);
-        OnSuperShotDamageChanged(null, null);
         OnUnlimitedSuperShotsChanged(null, null);
         OnRevolverDamageChanged(null, null);
         OnCigarDamageChanged(null, null);
@@ -87,13 +85,7 @@ public class TrainerStatManager : MonoBehaviour
                 break;
         }
     }
-
-    private void OnSuperShotDamageChanged(object sender, EventArgs e)
-    {
-        // cobra.dependencies.superGuidedShotLV2.GetComponent<SuperGuidedProjectileV2>().damage =
-        //   Plugin.SuperShotDamage.Value;
-    }
-
+    
     private void OnUnlimitedSuperShotsChanged(object sender, EventArgs e)
     {
     }

@@ -16,7 +16,8 @@ public class Plugin : BaseUnityPlugin
     public static ConfigEntry<float> PsychogunPenetratingShotDamage { get; private set; }
     public static ConfigEntry<float> CurvedShotDamage { get; private set; }
     public static ConfigEntry<GuidedShotMode> CurvedShotMode { get; private set; }
-    public static ConfigEntry<float> SuperShotDamage { get; private set; } // TO DO
+    public static ConfigEntry<float> SuperShotDamageNormal { get; private set; }
+    public static ConfigEntry<float> SuperShotDamageElites { get; private set; }
     public static ConfigEntry<bool> UnlimitedSuperShots { get; private set; }
     public static ConfigEntry<float> RevolverDamage { get; private set; } // Does not apply to Crystal Bowie
     public static ConfigEntry<float> CigarDamage { get; private set; } // NEEDS TESTING
@@ -26,7 +27,8 @@ public class Plugin : BaseUnityPlugin
     private const float DefaultPsychogunDamage = 2f;
     private const float DefaultPenetratingPsychogunShotDamage = 2f;
     private const float DefaultCurvedShotDamage = 6f;
-    private const float DefaultSuperShotDamage = 1000f;
+    public const float DefaultSuperShotDamageElites = 10f;
+    public const float DefaultSuperShotDamageNormal = 1000f;
     private const float DefaultRevolverDamage = 0.5f; // Check if this is correct
     private const float DefaultCigarDamage = 10f;
     private const float DefaultCobraHealth = 8f;
@@ -60,9 +62,12 @@ public class Plugin : BaseUnityPlugin
         CurvedShotMode = Config.Bind("Guided Shot", "Guided shot mode",
             GuidedShotMode.Normal,
             new ConfigDescription(FormatDesc("How often the guided shot can be used.")));
-        SuperShotDamage = Config.Bind("Super Shot", "Super shot damage",
-            DefaultSuperShotDamage,
-            new ConfigDescription(FormatNumberDesc("The damage of the super shot.")));
+        SuperShotDamageNormal = Config.Bind("Super Shot", "Super shot damage - Normal enemies",
+            DefaultSuperShotDamageNormal,
+            new ConfigDescription(FormatNumberDesc("The super shot damage against most enemy types.")));
+        SuperShotDamageElites = Config.Bind("Super Shot", "Super shot damage - Elite enemies",
+            DefaultSuperShotDamageElites,
+            new ConfigDescription(FormatNumberDesc("The super shot damage against elite enemies and mini bosses.")));
         UnlimitedSuperShots = Config.Bind("Super Shot", "Unlimited super shots",
             false,
             new ConfigDescription(FormatDesc("If true, the requirements for the super shot are disabled.")));
