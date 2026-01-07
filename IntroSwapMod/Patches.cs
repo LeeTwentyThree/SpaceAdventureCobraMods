@@ -1,5 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Video;
 
 namespace IntroSwapMod;
@@ -44,6 +45,9 @@ public static class Patches
             return true;
         }
         __instance.Play(video, activateOnEnd, OnEndToken);
+        if (Plugin.FitVertically.Value)
+            __instance.player.aspectRatio = VideoAspectRatio.FitVertically;
+        CreateBlackBackground(__instance.player);
         return false;
     }
     
@@ -55,5 +59,23 @@ public static class Patches
         if (!__instance.videoName.StartsWith(introSwapPrefix))
             return;
         __instance.player.SetDirectAudioVolume(0, LoadSaveController.Instance.PreferencesData.volumes[5] * LoadSaveController.Instance.PreferencesData.volumes[0] * Plugin.VideoVolume.Value);   
+    }
+
+    private static void CreateBlackBackground(VideoPlayer player)
+    {
+        var canvas = GameObject.Find("ui_Canvas").GetComponent<Canvas>();
+        var imgObject = new GameObject("BlackBackgroundImage");
+        var imgRect = imgObject.AddComponent<RectTransform>();
+        imgRect.SetParent(canvas.GetComponent<RectTransform>());
+        imgRect.anchorMin = Vector2.zero;
+        imgRect.anchorMax = Vector2.one;
+        imgRect.localPosition = Vector3.zero;
+        imgRect.localScale = Vector3.one;
+        var img = imgObject.AddComponent<Image>();
+        img.color = Color.black;
+        imgRect.SetSiblingIndex(2);
+        var barsDestroyer = new GameObject("BlackBarsDestroyer").AddComponent<DestroyVideoBlackBars>();
+        barsDestroyer.bars = imgObject;
+        barsDestroyer.player = player;
     }
 }

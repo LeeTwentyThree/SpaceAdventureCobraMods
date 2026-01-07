@@ -17,6 +17,7 @@ public class Plugin : BaseUnityPlugin
     
     internal static ConfigEntry<string> BundleName { get; set; }
     internal static ConfigEntry<float> VideoVolume { get; set; }
+    internal static ConfigEntry<bool> FitVertically { get; set; }
 
     private const string VideosFolder = "Videos";
     
@@ -30,6 +31,26 @@ public class Plugin : BaseUnityPlugin
         var videoFolder = Path.Combine(Path.GetDirectoryName(assembly.Location), VideosFolder);
         VideoDatabase = new VideoDatabase(videoFolder);
 
+        var options = GetPossibleOptionsString(videoFolder);
+        
+        BundleName = Config.Bind("General", "Video file name",
+            "original",
+            new ConfigDescription("The name of the file from the plugin's 'Videos' folder to load. Options: " + options));
+
+        VideoVolume = Config.Bind("General", "Video volume",
+            0.4f,
+            new ConfigDescription("The volume multiplier for the video."));
+
+        FitVertically = Config.Bind("General", "Fit vertically",
+            true,
+            new ConfigDescription(
+                "If true, the video will be fit vertically. If false, it will be fit horizontally."));
+
+        Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+    }
+
+    private string GetPossibleOptionsString(string videoFolder)
+    {
         var options = new List<string> {"none"};
         if (!Directory.Exists(videoFolder))
         {
@@ -50,15 +71,7 @@ public class Plugin : BaseUnityPlugin
         {
             normalOptionsString = joinedOptionsString;
         }
-        
-        BundleName = Config.Bind("General", "Video file name",
-            "original",
-            new ConfigDescription("The name of the file from the plugin's 'Videos' folder to load. Options: " + normalOptionsString));
 
-        VideoVolume = Config.Bind("General", "Video volume",
-            0.4f,
-            new ConfigDescription("The volume multiplier for the video."));
-
-        Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+        return normalOptionsString;
     }
 }
