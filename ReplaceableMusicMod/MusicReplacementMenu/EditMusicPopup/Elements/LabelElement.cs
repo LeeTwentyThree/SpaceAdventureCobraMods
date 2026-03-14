@@ -1,0 +1,25 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace MusicReplacer.MusicReplacementMenu.EditMusicPopup.Elements;
+
+public class LabelElement : MusicEditorElementBase
+{
+    public static LabelElement Create(string labelText, int fontSize = 100, float height = 180)
+    {
+        var element = CreateBase(height);
+        var label = element.gameObject.AddComponent<LabelElement>();
+        var textTransform = AddChild("Text", element);
+        textTransform.anchorMin = Vector2.zero;
+        textTransform.anchorMax = Vector2.one;
+        textTransform.offsetMin = new Vector2(50, 0);
+        textTransform.offsetMax = new Vector2(-50, 0);
+        var text = textTransform.gameObject.AddComponent<Text>();
+        text.fontSize = fontSize;
+        text.alignment = TextAnchor.MiddleLeft;
+        text.font = MusicMenuBuilder.ButtonFont;
+        text.color = Color.white;
+        text.text = labelText;
+        return label;
+    }
+}

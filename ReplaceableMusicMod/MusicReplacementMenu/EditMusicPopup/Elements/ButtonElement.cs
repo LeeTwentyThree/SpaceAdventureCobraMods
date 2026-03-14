@@ -1,0 +1,66 @@
+using System;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace MusicReplacer.MusicReplacementMenu.EditMusicPopup.Elements;
+
+public class ButtonElement : MusicEditorElementBase, ISelectableElement
+{
+    private static readonly Color NormalColor = new(0.3f, 0.3f, 0.3f, 0.2f);
+    private static readonly Color HighlightedColor = new(0.9f, 0.2f, 0.2f, 0.5f);
+    
+    private static readonly Color NormalTextColor = new(1, 1, 1);
+    private static readonly Color HighlightedTextColor = new(0, 0, 0);
+
+    private Image _image;
+    private Text _text;
+
+    private Action _onUse;
+
+    public static ButtonElement Create(string labelText, Action onUse, int fontSize = 80)
+    {
+        var element = CreateBase();
+        
+        // button
+        var graphic = element.gameObject.AddComponent<Image>();
+        graphic.color = NormalColor;
+        
+        // text
+        var textTransform = AddChild("Text", element);
+        var text = textTransform.gameObject.AddComponent<Text>();
+        text.fontSize = fontSize;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.font = MusicMenuBuilder.ButtonFont;
+        text.color = NormalTextColor;
+        text.text = labelText;
+        textTransform.anchorMin = Vector2.zero;
+        textTransform.anchorMax = Vector2.one;
+        textTransform.offsetMin = new Vector2(50, 0);
+        textTransform.offsetMax = new Vector2(-50, 0);
+        
+        // behaviour
+        var buttonElement = element.gameObject.AddComponent<ButtonElement>();
+        buttonElement._text = text;
+        buttonElement._image = graphic;
+        buttonElement._onUse = onUse;
+        
+        return buttonElement;
+    }
+
+    public void Select()
+    {
+        _image.color = HighlightedColor;
+        _text.color = HighlightedTextColor;
+    }
+
+    public void Deselect()
+    {
+        _image.color = NormalColor;
+        _text.color = NormalTextColor;
+    }
+
+    public void Interact()
+    {
+        _onUse.Invoke();
+    }
+}
