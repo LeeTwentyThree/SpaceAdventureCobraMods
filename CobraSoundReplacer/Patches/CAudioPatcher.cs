@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Reflection.Emit;
+using CobraSoundReplacer.API;
 using CobraSoundReplacer.Core;
 using HarmonyLib;
 using UnityEngine;
@@ -25,6 +24,9 @@ public static class PlayAudioByIdPatch
 {
     static void Prefix(ushort idx, ref float vol)
     {
+        if (PlayOriginalUtils.NextSoundPlaysOriginal)
+            return;
+        
         if (SoundPackRegistry.CustomSoundVolumes.TryGetValue(idx, out var customVolume))
         {
             vol *= customVolume;
@@ -33,6 +35,11 @@ public static class PlayAudioByIdPatch
         {
             vol *= newSoundData.Volume;
         }
+    }
+
+    static void Postfix(ushort idx, ref float vol)
+    {
+        PlayOriginalUtils.OnAnySoundPlayed();
     }
 
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -105,6 +112,9 @@ public static class PlayAudioByIdPatch
     
     private static bool IsSoundOverriden(ushort soundId)
     {
+        if (PlayOriginalUtils.NextSoundPlaysOriginal)
+            return false;
+        
         return SoundPackRegistry.NewSoundClips.ContainsKey(soundId) ||
                SoundPackRegistry.SoundReplacements.ContainsKey(soundId);
     }

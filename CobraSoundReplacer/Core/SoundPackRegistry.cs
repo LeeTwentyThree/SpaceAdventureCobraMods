@@ -113,6 +113,8 @@ public static class SoundPackRegistry
         }
 
         _cAudio.AllClip = newArray;
+        
+        Plugin.Logger.LogMessage("All audio loaded");
     }
 
     private static IEnumerator RefreshPack(RegisteredSoundPack pack)
