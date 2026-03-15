@@ -54,6 +54,8 @@ public static class Patches
         typeof(float), typeof(byte), typeof(byte), typeof(float))]
     private static void PenetratingShotMixerFixPatch(ref audioSelectionData.eCLIP _clip, CAudio.CPlayingAudioData __result)
     {
+        if (_clip == null)
+            return;
         if (_clip != _penetratingShotSound)
             return;
         if (__result.asrc == null)
