@@ -10,8 +10,14 @@ public class MusicButton : MonoBehaviour
     public MusicSound data;
     public Color selectedColor;
     public Image image;
+    public GameObject usingCustomSoundVisual;
 
     private bool _normalColorSet;
+
+    private void Start()
+    {
+        RefreshVisuals();
+    }
     
     public void SetStateSelected(bool selected)
     {
@@ -21,5 +27,10 @@ public class MusicButton : MonoBehaviour
             _normalColorSet = true;
         }
         image.color = selected ? selectedColor : _normalColor;
+    }
+
+    public void RefreshVisuals()
+    {
+        usingCustomSoundVisual.SetActive(MusicReplacementManager.ReplacementData.SoundHasReplacement(data));
     }
 }

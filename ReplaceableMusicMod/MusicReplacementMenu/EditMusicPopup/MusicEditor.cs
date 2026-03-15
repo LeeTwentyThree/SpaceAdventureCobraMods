@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using CobraSoundReplacer.Utils;
 using MusicReplacer.MusicReplacementMenu.EditMusicPopup.Elements;
 using MusicReplacer.ReplacementSystem;
 using UnityEngine;
@@ -9,14 +11,20 @@ public class MusicEditor : MonoBehaviour
 {
     public RectTransform rect;
     public FileChooserMenu fileChooser;
+    public CustomMusicMenu musicMenu;
     
     private readonly List<MusicEditorElementBase> _elements = [];
     private readonly List<ISelectableElement> _selectables = [];
 
     private int _mainChoice;
     private int _previousChoice;
+    private bool _startingUpPreview;
 
     private MusicPreviewUtils.MusicPreview _preview;
+
+    private MusicSound _activeSound;
+
+    private bool _lastPlayedSoundWasOriginal;
     
     private void Update()
     {
@@ -26,29 +34,46 @@ public class MusicEditor : MonoBehaviour
         if (fileChooser.IsOpen)
             return;
         
-        UIController.HandleCursor(ref _mainChoice, _selectables.Count, 1, 2, _allowbuttonscycle: false, UIFooter.PREDEFINEDTYPE.GENERIC_VALIDATE, delegate
-            {
-                _selectables[_mainChoice].Interact();
-            },
+        UIController.HandleCursor(ref _mainChoice, _selectables.Count, 1, 2, _allowbuttonscycle: false, UIFooter.PREDEFINEDTYPE.GENERIC_VALIDATE, delegate { _selectables[_mainChoice].Interact(); },
             HideWindow, OnChoiceChange, OnChoiceChange);
-
     }
 
     public void ShowWindow(MusicSound sound)
     {
+        _activeSound = sound;
+
         if (_elements.Count > 0)
             ClearWindow();
-        
+
         gameObject.SetActive(true);
-        
+
+        // Header
         AddElement(LabelElement.Create(sound.DisplayName, 130));
+        
+        // Info
         AddElement(LabelElement.Create("Original file name: " + sound.FileName, 50, 60));
-        AddElement(LabelElement.Create("Current sound: " + GetCurrentSoundName(sound)));
+        AddElement(LabelElement.Create("Current sound: " + GetCurrentSoundName()));
+        
+        // Replace
+        AddElement(ButtonElement.Create("Replace this sound", () => fileChooser.Show(sound)));
+
+        // Optional warning(s)
         if (AudioController.Audio.volume[2] <= 0.1f)
             AddElement(LabelElement.Create("<color=#FF0000>WARNING: Music volume is low or disabled!</color>"));
-        AddElement(ButtonElement.Create("Preview current sound", () => PreviewMusic(sound, false)));
-        AddElement(ButtonElement.Create("Preview original sound", () => PreviewMusic(sound, true)));
-        AddElement(ButtonElement.Create("Replace this sound", () => fileChooser.Show(sound)));
+        
+        // Preview
+        AddElement(ButtonElement.Create("Preview current sound", () => PreviewMusic(false)));
+        AddElement(ButtonElement.Create("Preview original sound", () => PreviewMusic(true)));
+        
+        // Volume slider
+        if (MusicReplacementManager.ReplacementData.SoundHasReplacement(sound))
+        {
+            AddElement(SliderElement.Create("Volume", SetVolume, GetVolume(), 
+                0.05f, n => n.ToString("0%"), 130));
+            AddElement(LabelElement.Create("Music volume may vary in-game", 50, 60));
+        }
+        
+        // Exit
         AddElement(ButtonElement.Create("Return & Save", HideWindow));
 
         _mainChoice = 0;
@@ -59,28 +84,64 @@ public class MusicEditor : MonoBehaviour
         }
     }
 
-    private void PreviewMusic(MusicSound sound, bool originalSound)
+    private float GetVolume()
     {
-        StopMusicPreview();
-        _preview = MusicPreviewUtils.PreviewCurrentMusic(sound);
+        return MusicReplacementManager.ReplacementData.GetSoundVolume(_activeSound);
     }
 
-    private string GetCurrentSoundName(MusicSound sound)
+    private void SetVolume(float volume)
     {
-        if (!MusicReplacementManager.ReplacementData.TryGetCustomSound(sound, out var replacement))
+        MusicReplacementManager.ReplacementData.SetSoundVolume(_activeSound, volume);
+        if (_preview != null)
+        {
+            _preview.SetPreviewVolume(volume);
+        }
+        MusicMenuBuilder.ShowRestartRequiredWarning();
+    }
+
+    private void PreviewMusic(bool originalSound)
+    {
+        if (StopMusicPreview() && originalSound == _lastPlayedSoundWasOriginal)
+            return;
+
+        _lastPlayedSoundWasOriginal = originalSound;
+        
+        if (_startingUpPreview)
+        {
+            Plugin.Logger.LogWarning("Already busy attempting to preview music");
+            return;
+        }
+        StartCoroutine(StartSoundPreview(originalSound));
+    }
+
+    private IEnumerator StartSoundPreview(bool originalSound)
+    {
+        _startingUpPreview = true;
+        var taskResult = new TaskResult<MusicPreviewUtils.MusicPreview>();
+        yield return MusicPreviewUtils.PreviewCurrentMusic(_activeSound, originalSound, taskResult);
+        _preview = taskResult.GetResult();
+        _startingUpPreview = false;
+    }
+
+    private string GetCurrentSoundName()
+    {
+        if (!MusicReplacementManager.ReplacementData.TryGetCustomSound(_activeSound, out var replacement))
             return "DEFAULT";
         return FileManagement.GetDisplayNameForSoundPath(replacement);
     }
 
-    private void StopMusicPreview()
+    private bool StopMusicPreview()
     {
-        _preview?.StopPreview();
+        if (_preview == null)
+            return false;
+        bool stopped = _preview.StopPreview();
         _preview = null;
+        return stopped;
     }
 
     public void HideWindow()
     {
-        gameObject.SetActive(false);
+        musicMenu.CloseMusicEditor();
         StopMusicPreview();
         MusicReplacementManager.SaveChanges();
     }
@@ -99,7 +160,7 @@ public class MusicEditor : MonoBehaviour
         {
             _selectables[_previousChoice].Deselect();
         }
-        
+
         _selectables[_mainChoice].Select();
         _previousChoice = _mainChoice;
     }
@@ -113,8 +174,10 @@ public class MusicEditor : MonoBehaviour
                 Plugin.Logger.LogWarning("Element is null. This should not happen!");
                 continue;
             }
+
             Destroy(element.gameObject);
         }
+
         _elements.Clear();
         _selectables.Clear();
     }
@@ -127,6 +190,7 @@ public class MusicEditor : MonoBehaviour
         {
             _selectables.Add(selectable);
         }
+
         _elements.Add(element);
     }
 }

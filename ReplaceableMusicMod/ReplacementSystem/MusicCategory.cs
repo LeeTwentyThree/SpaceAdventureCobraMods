@@ -6,7 +6,6 @@ public enum MusicCategory
     Generic,
     Reward,
     Villain,
-    Cinematic,
     City,
     Cliff,
     Pyramid,

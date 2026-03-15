@@ -8,19 +8,51 @@ public static class MusicMenuBuilder
 {
     public const NUIButton.TYPE NewButtonType = (NUIButton.TYPE)1353; // arbitrary value, do not copy
     public static Font ButtonFont { get; private set; }
-    
-    private const string MainMenuButton = "MUSIC REPLACER";
 
+    private static GameObject RestartRequiredWarning { get; set; }
+
+    private const string MainMenuButton = "MUSIC";
+    private const string MainMenuButtonJapanese = "音楽";
+
+    public static void ShowRestartRequiredWarning()
+    {
+        if (RestartRequiredWarning)
+            RestartRequiredWarning.SetActive(true);
+    }
+    
     public static void BuildMusicReplacementMenu(NUIMainMenu menu)
     {
         var button = AddNewButton(menu);
         var enabler = button.gameObject.AddComponent<MusicMenuEnabler>();
         enabler.mainMenuTab = menu.transform.Find("container/title").gameObject;
         enabler.mainMenu = menu;
-        
+
+        RestartRequiredWarning = CreateRestartRequiredWarning(menu);
+        RestartRequiredWarning.SetActive(false);
+
         var window = CreateNewWindow(menu);
         window.gameObject.SetActive(false);
         enabler.musicMenu = window.gameObject;
+    }
+
+    private static GameObject CreateRestartRequiredWarning(NUIMainMenu menu)
+    {
+        var parent = menu.transform.Find("container/title");
+        
+        var textObject = new GameObject("RestartRequired").AddComponent<RectTransform>();
+        textObject.SetParent(parent);
+        textObject.localScale = Vector3.one;
+        textObject.localPosition = new Vector3(0, -240, 0);
+        textObject.sizeDelta = new Vector2(1000, 300);
+        textObject.pivot = new Vector2(0, 0.5f);
+        var textComponent = textObject.gameObject.AddComponent<Text>();
+        textComponent.text = "<color=#FFB500><size=60>⚠️</size></color><color=#FFFFFF> Restart required for music changes!</color>";
+        textComponent.color = Color.white;
+        textComponent.fontSize = 40;
+        textComponent.font = ButtonFont;
+        textComponent.raycastTarget = false;
+
+        return textObject.gameObject;
     }
 
     private static CustomMusicMenu CreateNewWindow(NUIMainMenu menu)
@@ -54,7 +86,7 @@ public static class MusicMenuBuilder
         headerText.font = ButtonFont;
         headerText.fontSize = 100;
         headerText.alignment = TextAnchor.MiddleCenter;
-        
+
         var viewport = new GameObject("Viewport").AddComponent<RectTransform>();
         viewport.SetParent(scrollView);
         viewport.localScale = Vector3.one;
@@ -62,7 +94,7 @@ public static class MusicMenuBuilder
         viewport.anchorMax = Vector2.one;
         viewport.offsetMin = Vector2.zero;
         viewport.offsetMax = Vector2.zero;
-        
+
         viewport.gameObject.AddComponent<Image>();
         viewport.gameObject.AddComponent<Mask>().showMaskGraphic = false;
 
@@ -76,7 +108,7 @@ public static class MusicMenuBuilder
         content.offsetMax = Vector2.zero;
         var sizeFitter = content.gameObject.AddComponent<ContentSizeFitter>();
         sizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        
+
         var scrollRect = scrollView.gameObject.AddComponent<ScrollRect>();
         scrollRect.content = content;
         scrollRect.horizontal = false;
@@ -96,7 +128,7 @@ public static class MusicMenuBuilder
         editMusicRect.SetParent(musicPanelRect);
         editMusicRect.localScale = Vector3.one;
         editMusicRect.anchoredPosition = new Vector2(0, 0);
-        editMusicRect.sizeDelta = new Vector2(3000, 2000);
+        editMusicRect.sizeDelta = new Vector2(3000, 2400);
         editMusicWindow.AddComponent<Image>().color = new Color(0.05f, 0.03f, 0.03f);
         var editLayout = editMusicWindow.AddComponent<VerticalLayoutGroup>();
         editLayout.childScaleHeight = false;
@@ -105,9 +137,9 @@ public static class MusicMenuBuilder
         editLayout.childForceExpandHeight = false;
         editLayout.padding = new RectOffset(50, 50, 50, 50);
         editLayout.spacing = 40;
-        
+
         // FILE SELECTION MENU
-        
+
         var fileChooserWindow = new GameObject("choose files window");
         var fileChooserRect = fileChooserWindow.AddComponent<RectTransform>();
         fileChooserRect.SetParent(musicPanelRect);
@@ -115,7 +147,7 @@ public static class MusicMenuBuilder
         fileChooserRect.anchoredPosition = new Vector2(0, 0);
         fileChooserRect.sizeDelta = new Vector2(4000, 2800);
         fileChooserWindow.AddComponent<Image>().color = new Color(0.05f, 0.03f, 0.03f);
-        
+
         var fileChooserHeader = new GameObject("Text").AddComponent<RectTransform>();
         fileChooserHeader.SetParent(fileChooserRect);
         fileChooserHeader.localScale = Vector3.one;
@@ -135,7 +167,7 @@ public static class MusicMenuBuilder
         fileChooserViewport.anchorMax = Vector2.one;
         fileChooserViewport.offsetMin = Vector2.zero;
         fileChooserViewport.offsetMax = new Vector2(0, -200);
-        
+
         fileChooserViewport.gameObject.AddComponent<Image>();
         fileChooserViewport.gameObject.AddComponent<Mask>().showMaskGraphic = false;
 
@@ -147,8 +179,9 @@ public static class MusicMenuBuilder
         fileChooserContent.pivot = new Vector2(0.5f, 1);
         fileChooserContent.offsetMin = Vector2.zero;
         fileChooserContent.offsetMax = Vector2.zero;
-        fileChooserContent.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        
+        fileChooserContent.gameObject.AddComponent<ContentSizeFitter>().verticalFit =
+            ContentSizeFitter.FitMode.PreferredSize;
+
         var fileChooserLayout = fileChooserContent.gameObject.AddComponent<GridLayoutGroup>();
         fileChooserLayout.childAlignment = TextAnchor.UpperCenter;
         fileChooserLayout.cellSize = new Vector2(600, 180);
@@ -156,7 +189,7 @@ public static class MusicMenuBuilder
         fileChooserLayout.padding = new RectOffset(50, 50, 50, 50);
         fileChooserLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         fileChooserLayout.constraintCount = FileChooserMenu.ElementsPerRow;
-        
+
         var filesScrollRect = fileChooserWindow.gameObject.AddComponent<ScrollRect>();
         filesScrollRect.content = fileChooserContent;
         filesScrollRect.horizontal = false;
@@ -164,7 +197,7 @@ public static class MusicMenuBuilder
         filesScrollRect.viewport = fileChooserViewport;
         filesScrollRect.scrollSensitivity = 50;
         filesScrollRect.movementType = ScrollRect.MovementType.Clamped;
-        
+
         // CREATE MENUS AND ASSIGN VALUES
         // File chooser menu
         var fileChooser = fileChooserWindow.AddComponent<FileChooserMenu>();
@@ -183,12 +216,13 @@ public static class MusicMenuBuilder
         var menuComponent = musicPanel.AddComponent<CustomMusicMenu>();
         menuComponent.content = content;
         menuComponent.rect = scrollRect;
-        menuComponent.text = headerText;
+        menuComponent.categoryText = headerText;
         menuComponent.musicEditor = musicEditor;
-        
-        // Cross references
+
+        // Cross-references
         fileChooser.editor = musicEditor;
-        
+        musicEditor.musicMenu = menuComponent;
+
         return menuComponent;
     }
 
@@ -201,7 +235,10 @@ public static class MusicMenuBuilder
         var text = newButton.transform.Find("text").gameObject;
         Object.DestroyImmediate(text.GetComponent<TextLocalize>());
         var textComponent = text.GetComponent<Text>();
-        textComponent.text = MainMenuButton;
+        textComponent.text =
+            LoadSaveController.Instance.PreferencesData.language == TextsController.LANGUAGE.JAPANESE
+                ? MainMenuButtonJapanese
+                : MainMenuButton;
         ButtonFont = textComponent.font;
         var newButtons = new NUIButton[menu.mainButtons.Length + 1];
         menu.mainButtons.CopyTo(newButtons, 0);

@@ -16,7 +16,7 @@ public class CustomMusicMenu : MonoBehaviour
 
     public RectTransform content;
     public ScrollRect rect;
-    public Text text;
+    public Text categoryText;
     public MusicEditor musicEditor;
     
     private readonly List<MusicButton> _buttons = [];
@@ -38,7 +38,7 @@ public class CustomMusicMenu : MonoBehaviour
         UIController.HandleCursor(ref _mainChoice, _buttons.Count, 1, 2, _allowbuttonscycle: false, UIFooter.PREDEFINEDTYPE.GENERIC_VALIDATE, delegate 
             {
                 var button = _buttons[_mainChoice];
-                musicEditor.ShowWindow(button.data);
+                OpenMusicEditor(button.data);
             },
         delegate
         {
@@ -112,7 +112,7 @@ public class CustomMusicMenu : MonoBehaviour
         StartCoroutine(SetScrollToTopWithDelay());
         _mainChoice = 0;
         OnChoiceChange();
-        text.text = $"[←] Category: {GetNameForCategory(category)} [→]";
+        categoryText.text = $"[←] Category: {GetNameForCategory(category)} [→]";
         _selectedCategory = category;
     }
 
@@ -123,11 +123,11 @@ public class CustomMusicMenu : MonoBehaviour
             return "Snow Cliff";
         }
 
-        if (category == MusicCategory.Cinematic)
+        if (category == MusicCategory.Unused)
         {
-            return "Cinematic (NO PREVIEW)";
+            return "Unused / Broken";
         }
-
+        
         return category.ToString();
     }
 
@@ -135,6 +135,14 @@ public class CustomMusicMenu : MonoBehaviour
     {
         yield return null;
         rect.verticalNormalizedPosition = 1;
+    }
+
+    private void RefreshExistingButtons()
+    {
+        foreach (var button in _buttons)
+        {
+            button.RefreshVisuals();
+        }
     }
 
     private MusicButton AddButton(MusicSound sound)
@@ -146,13 +154,17 @@ public class CustomMusicMenu : MonoBehaviour
         button.anchorMax = new Vector2(1, 0);
         button.offsetMin = new Vector2(0, -100);
         button.offsetMax = new Vector2(0, 100);
+        
+        // image
         var image = button.gameObject.AddComponent<Image>();
         image.color = new Color(0.2f, 0.2f, 0.2f, 0.3f);
+        
+        // main text
         var textObject = new GameObject("Text").AddComponent<RectTransform>();
         textObject.SetParent(button);
         textObject.localScale = Vector3.one;
         textObject.anchorMin = Vector2.zero;
-        textObject.anchorMax = Vector2.one;
+        textObject.anchorMax = new Vector2(0.8f, 1);
         const int padding = 50;
         textObject.offsetMin = new Vector2(padding, padding);
         textObject.offsetMax = new Vector2(-padding, -padding);
@@ -160,21 +172,43 @@ public class CustomMusicMenu : MonoBehaviour
         text.font = MusicMenuBuilder.ButtonFont;
         text.text = sound.DisplayName;
         text.alignment = TextAnchor.MiddleLeft;
-        text.fontSize = 80;
+
+        int fontSize = 80;
+        if (LoadSaveController.Instance.PreferencesData.language == TextsController.LANGUAGE.JAPANESE)
+            fontSize = Mathf.RoundToInt(fontSize * 0.7f);
+        text.fontSize = fontSize;
+        
+        // has replacement visuals
+        var hasReplacementObject = new GameObject("HasReplacement").AddComponent<RectTransform>();
+        hasReplacementObject.SetParent(button);
+        hasReplacementObject.localScale = Vector3.one;
+        hasReplacementObject.anchorMin = new Vector2(0.8f, 0);
+        hasReplacementObject.anchorMax = Vector2.one;
+        hasReplacementObject.offsetMin = new Vector2(padding, padding);
+        hasReplacementObject.offsetMax = new Vector2(-padding, -padding);
+        var replacedText = hasReplacementObject.gameObject.AddComponent<Text>();
+        replacedText.font = MusicMenuBuilder.ButtonFont;
+        replacedText.text = "<color=#FFFF00>CUSTOM</color>";
+        replacedText.alignment = TextAnchor.MiddleRight;
+        replacedText.fontSize = fontSize;
+        
+        // button component
         var buttonComponent = button.gameObject.AddComponent<MusicButton>();
         buttonComponent.image = image;
         buttonComponent.selectedColor = new Color(1, 0.2f, 0, 0.4f);
         buttonComponent.data = sound;
+        buttonComponent.usingCustomSoundVisual = hasReplacementObject.gameObject;
         return buttonComponent;
     }
 
     public void OpenMusicEditor(MusicSound music)
     {
-        musicEditor.gameObject.SetActive(true);
+        musicEditor.ShowWindow(music);
     }
 
     public void CloseMusicEditor()
     {
         musicEditor.gameObject.SetActive(false);
+        RefreshExistingButtons();
     }
 }

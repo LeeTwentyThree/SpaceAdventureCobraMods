@@ -15,6 +15,8 @@ public class LabelElement : MusicEditorElementBase
         textTransform.offsetMin = new Vector2(50, 0);
         textTransform.offsetMax = new Vector2(-50, 0);
         var text = textTransform.gameObject.AddComponent<Text>();
+        if (LoadSaveController.Instance.PreferencesData.language == TextsController.LANGUAGE.JAPANESE)
+            fontSize = Mathf.RoundToInt(fontSize * 0.7f);
         text.fontSize = fontSize;
         text.alignment = TextAnchor.MiddleLeft;
         text.font = MusicMenuBuilder.ButtonFont;

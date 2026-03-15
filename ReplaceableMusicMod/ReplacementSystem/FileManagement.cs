@@ -47,6 +47,20 @@ public static class FileManagement
         Process.Start("explorer.exe", path);
     }
 
+    public static string GetFullPathOfCustomSound(string pathToCustomSound)
+    {
+        return Path.Combine(GetModFolder(), pathToCustomSound);
+    }
+    
+    public static string GetFullPathOfCustomSound(MusicSound sound)
+    {
+        if (!MusicReplacementManager.ReplacementData.TryGetCustomSound(sound, out var customSoundPath))
+        {
+            throw new NullReferenceException("Failed to find custom sound path");
+        }
+        return GetFullPathOfCustomSound(customSoundPath);
+    }
+
     public static string[] GetAllCustomSounds()
     {
         var soundsFolder = GetCustomSoundsFolder();

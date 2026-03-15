@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MusicReplacer.MusicReplacementMenu.EditMusicPopup.Elements;
 using MusicReplacer.ReplacementSystem;
 using UnityEngine;
@@ -105,9 +103,9 @@ public class FileChooserMenu : MonoBehaviour
 
     private void DrawWindow(MusicSound music)
     {
-        AddElement(ButtonElement.Create("CANCEL", Hide), 0);
-        AddElement(ButtonElement.Create("FOLDER", FileManagement.OpenCustomSoundsFolder), 0);
-        AddElement(ButtonElement.Create("DEFAULT", () => SetCustomSound(music, null)), 0);
+        AddElement(ButtonElement.Create("CANCEL", Hide, 80), 0);
+        AddElement(ButtonElement.Create("FOLDER", FileManagement.OpenCustomSoundsFolder, 80), 0);
+        AddElement(ButtonElement.Create("RESET", () => SetCustomSound(music, null), 80), 0);
         
         // Placeholders hack to align all elements
         var rowToFill = _elements.Count - 1;
@@ -146,6 +144,7 @@ public class FileChooserMenu : MonoBehaviour
         {
             MusicReplacementManager.ReplacementData.SetReplacement(music, customSoundPath);
         }
+        MusicMenuBuilder.ShowRestartRequiredWarning();
         Hide();
     }
     
@@ -153,6 +152,13 @@ public class FileChooserMenu : MonoBehaviour
     {
         if (_selectables.Count == 0)
             return;
+
+        if (_selectables[_row].Count == 0)
+        {
+            _row = _previousChoice.x;
+            _column = _previousChoice.y;
+            return;
+        }
         
         _column = Mathf.Clamp(_column, 0, _selectables[_row].Count - 1);
 

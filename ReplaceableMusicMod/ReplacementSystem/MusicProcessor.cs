@@ -109,7 +109,6 @@ public static class MusicProcessor
         return MusicByCategory[category];
     }
 
-    // TODO: IMPLEMENT
     private static MusicCategory GetCategoryForSoundName(string soundName)
     {
         if (UnusedMusic.Contains(soundName))
@@ -120,7 +119,7 @@ public static class MusicProcessor
             return MusicCategory.Reward;
 
         if (soundName.Contains("_cin_", StringComparison.OrdinalIgnoreCase))
-            return MusicCategory.Cinematic;
+            return MusicCategory.Unused;
         
         // Areas
         if (soundName.Contains("_base_"))

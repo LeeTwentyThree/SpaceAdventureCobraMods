@@ -17,7 +17,7 @@ public class ButtonElement : MusicEditorElementBase, ISelectableElement
 
     private Action _onUse;
 
-    public static ButtonElement Create(string labelText, Action onUse, int fontSize = 80)
+    public static ButtonElement Create(string labelText, Action onUse, int fontSize = 100)
     {
         var element = CreateBase();
         
@@ -28,6 +28,8 @@ public class ButtonElement : MusicEditorElementBase, ISelectableElement
         // text
         var textTransform = AddChild("Text", element);
         var text = textTransform.gameObject.AddComponent<Text>();
+        if (LoadSaveController.Instance.PreferencesData.language == TextsController.LANGUAGE.JAPANESE)
+            fontSize = Mathf.RoundToInt(fontSize * 0.7f);
         text.fontSize = fontSize;
         text.alignment = TextAnchor.MiddleCenter;
         text.font = MusicMenuBuilder.ButtonFont;
