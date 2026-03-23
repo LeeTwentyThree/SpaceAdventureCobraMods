@@ -22,7 +22,6 @@ public static class MusicProcessor
         "mus_loop_ep03_lvl01_explorationcombat.wav",
         "mus_loop_ep03_lvl01_turtle.wav",
         "mus_loop_ingame.wav",
-        "mus_loop_jd_action.mp3",
         "mus_loop_jd_boss.mp3",
         "mus_loop_jd_exploration.mp3",
         "mus_loop_jd_platforming.ogg",
